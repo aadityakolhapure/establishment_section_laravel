@@ -4,37 +4,41 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateUsersTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // Create departments table
+        Schema::create('departments', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique()->comment('Name of the department');
+            $table->string('code', 10)->unique()->comment('Unique code for the department');
+            $table->string('description')->nullable()->comment('Brief description of the department');
+            $table->timestamps();
+        });
+
+        // Create users table
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->enum('role',['admin','faculty','hod','principal'])->default('faculty');
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
+            $table->enum('role', ['faculty', 'admin', 'principal', 'hod'])->default('faculty');
+            $table->string('degree_or_diploma');
+            $table->string('employee_id')->unique();
+            $table->text('address')->nullable();
+            $table->string('mobile_no', 10);
+            $table->string('alternative_mobile_no', 10)->nullable();
+            $table->date('date_of_joining');
+            $table->integer('professional_experience')->comment('Years of experience');
+            $table->integer('teaching_experience')->comment('Years of teaching experience');
+            $table->string('pan_number', 20)->unique();
+            $table->string('aadhar_number', 12)->unique();
+            $table->string('caste')->nullable();
+            $table->string('subcaste')->nullable();
+            $table->date('dob');
             $table->timestamps();
-        });
-
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
-
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
         });
     }
 
@@ -44,7 +48,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('departments');
     }
-};
+}
