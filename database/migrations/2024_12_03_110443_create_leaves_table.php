@@ -23,7 +23,6 @@ class CreateLeavesTable extends Migration
             $table->enum('admin_status', ['pending', 'approved', 'rejected'])->default('pending')->comment('Admin approval status');
             $table->text('admin_remark')->nullable()->comment('Admin remarks');
             $table->enum('principal_status', ['pending', 'approved', 'rejected'])->default('pending')->comment('Principal approval status');
-            $table->integer('remaining_days')->unsigned()->comment('Remaining leave days after this application');
             $table->timestamps();
         });
     }
