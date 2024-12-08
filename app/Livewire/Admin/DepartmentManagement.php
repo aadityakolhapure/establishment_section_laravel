@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\Department;
@@ -11,7 +11,7 @@ class DepartmentManagement extends Component
 {
     use WithPagination;
 
-    // Form properties
+    // Public properties with default values
     public $name = '';
     public $description = '';
     public $code = '';
@@ -21,6 +21,12 @@ class DepartmentManagement extends Component
     public $search = '';
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+
+    // Mount method to initialize properties
+    public function mount()
+    {
+        $this->reset();
+    }
 
     // Validation rules
     protected function rules()
@@ -40,13 +46,7 @@ class DepartmentManagement extends Component
         ];
     }
 
-    // Real-time validation
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
-    }
-
-    // Render the component
+    // Render method
     public function render()
     {
         $departments = Department::where('name', 'like', '%' . $this->search . '%')
@@ -55,12 +55,12 @@ class DepartmentManagement extends Component
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(10);
 
-        return view('livewire.department-management', [
+        return view('livewire.admin.department-management', [
             'departments' => $departments
         ]);
     }
 
-    // Save or update department
+    // Save method
     public function save()
     {
         $validatedData = $this->validate();
@@ -77,10 +77,10 @@ class DepartmentManagement extends Component
         }
 
         // Reset form
-        $this->reset(['name', 'description', 'code', 'departmentId']);
+        $this->reset();
     }
 
-    // Prepare department for editing
+    // Edit method
     public function edit(Department $department)
     {
         $this->departmentId = $department->id;
@@ -89,30 +89,17 @@ class DepartmentManagement extends Component
         $this->code = $department->code;
     }
 
-    // Delete department
+    // Delete method
     public function delete(Department $department)
     {
         $department->delete();
         session()->flash('message', 'Department deleted successfully.');
-
-        // Reset pagination to first page if needed
-        $this->resetPage();
+        $this->reset();
     }
 
-    // Sort departments
-    public function sortBy($field)
-    {
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDirection = 'asc';
-        }
-    }
-
-    // Reset form
+    // Cancel editing
     public function cancel()
     {
-        $this->reset(['name', 'description', 'code', 'departmentId']);
+        $this->reset();
     }
 }
